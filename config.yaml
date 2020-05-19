@@ -1,0 +1,7 @@
+details:
+  # Cluster name
+  K8S:
+    # Path th the KUBECONFIG file
+    kubeconfig: "/home/vineeth/Downloads/raw51.yaml"
+  AKS:
+    kubeconfig: "/home/vineeth/Downloads/aks52.yaml"
