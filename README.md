@@ -16,12 +16,13 @@ details:
   AKS:
     kubeconfig: "/home/vineeth/Downloads/aks52.yaml"
 ```
+Set KUBECONFIG_MC env with above yaml file i.e export ```KUBECONFIG_MC=config.yaml```
 
-Implementation details:
+### Implementation details:
 
 So, I didn't want to re-invent the wheel by supporting all commands & flags of ```kubectl``` cli. So to make implementation as simple as possible and to support all the features of kubectl. Plugin performs the kubectl operations by switching the context between multiple k8s clusters.  
 
-Usage:
+### Usage:
 
 Creating a pod in multiple clusters with single command.
 ```
@@ -44,8 +45,8 @@ vi     1/1     Running   0          117s
 
 CLUSTER NAME:  AKS
 NAME            READY   STATUS    RESTARTS   AGE
-aks-ssh-qxs2c   0/1     Running   0          8m39s
-vi              0/1     Running   0          117s
+aks-ssh-qxs2c   1/1     Running   0          8m39s
+vi              1/1     Running   0          117s
 ```
 
 This plugin is 100% compatible with kubectl commands & flags.
