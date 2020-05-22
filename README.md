@@ -4,7 +4,12 @@ kubectl plugin to support multiple kubernetes clusters in single go.
 
 The motive behind this plugin is to manage set of kubernetes clusters with a kubectl plugin. All the kubectl actions can be performed using this plugin. The plugin cascades the performed operation to all the k8s clusters.
 
-All you need to do is provide the below configuration to access multiple k8s clusters from the kubectl plugin.
+We access multiple clusters using the ```KUBECONFIG``` file by reading all the contexts. For this to work all you need is ```KUBECONFIG``` env set.
+More details on configuring access to multiple clusters using a single ```KUBECONFIG``` file can be found [here](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+
+OR
+
+You can provide the paths to the multiple ```KUBECONFIG``` files for this to work. As specified in the below configuration file.
 
 Configuration:
 ```
@@ -18,6 +23,8 @@ details:
 ```
 Set KUBECONFIG_MC env with above yaml file i.e export ```KUBECONFIG_MC=config.yaml```
 
+**Note:** When both ```KUBECONFIG``` & ```KUBECONFIG_MC``` env are set ```KUBECONFIG_MC``` the custom env designed for this plugin to ease adding details on multiple ```KUBECONFIG``` file paths will take the precedence.
+ 
 ### Implementation details:
 
 So, I didn't want to re-invent the wheel by supporting all commands & flags of ```kubectl``` cli. So to make implementation as simple as possible and to support all the features of kubectl. Plugin performs the kubectl operations by switching the context between multiple k8s clusters.  

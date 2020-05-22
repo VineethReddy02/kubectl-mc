@@ -1,8 +1,20 @@
-# github.com/inconshreveable/mousetrap v1.0.0
-github.com/inconshreveable/mousetrap
-# github.com/spf13/cobra v1.0.0
-github.com/spf13/cobra
-# github.com/spf13/pflag v1.0.5
-github.com/spf13/pflag
+# github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
+github.com/gogo/protobuf/proto
 # gopkg.in/yaml.v2 v2.3.0
 gopkg.in/yaml.v2
+# k8s.io/apimachinery v0.17.5
+k8s.io/apimachinery/pkg/conversion
+k8s.io/apimachinery/pkg/conversion/queryparams
+k8s.io/apimachinery/pkg/runtime
+k8s.io/apimachinery/pkg/runtime/schema
+k8s.io/apimachinery/pkg/util/errors
+k8s.io/apimachinery/pkg/util/json
+k8s.io/apimachinery/pkg/util/naming
+k8s.io/apimachinery/pkg/util/runtime
+k8s.io/apimachinery/pkg/util/sets
+k8s.io/apimachinery/third_party/forked/golang/reflect
+# k8s.io/client-go v0.17.5
+k8s.io/client-go/tools/clientcmd/api
+k8s.io/client-go/tools/clientcmd/api/v1
+# k8s.io/klog v1.0.0
+k8s.io/klog

@@ -22,5 +22,5 @@ import (
 
 func main() {
   kubectl.Initialise()
-  kubectl.KubeClients.ExecCmd(os.Args[1:])
+  kubectl.ClientInfo.SetKubeContext(os.Args[1:])
 }

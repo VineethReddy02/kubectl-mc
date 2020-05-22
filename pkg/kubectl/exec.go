@@ -3,6 +3,7 @@ package kubectl
 import (
 	"fmt"
 	"io/ioutil"
+	v1 "k8s.io/client-go/tools/clientcmd/api/v1"
 	"log"
 	"os"
 	"os/exec"
@@ -16,8 +17,18 @@ const (
 	KUBECTL       = "kubectl"
 )
 
-var KubeClients Config
-var PreviousKubeconfig string
+var ClientInfo ConfigDetails
+
+type ConfigDetails struct {
+	KubeMCClients Config
+	KubeClients []ContextDetails
+	KubeConfig bool
+}
+
+type ContextDetails struct {
+	Name string
+	Cluster string
+}
 
 type Config struct {
 	Details map[string]Details `yaml:"details"`
@@ -31,7 +42,13 @@ type Details struct {
 func Initialise() {
 	configFile := os.Getenv(KUBECONFIG_MC)
 	if configFile == "" {
-		log.Fatalf("config file not provided i.e %s env is unset", KUBECONFIG_MC)
+		ClientInfo.KubeConfig = true
+		kubeConfig := os.Getenv(KUBECONFIG)
+		if kubeConfig == "" {
+			log.Fatal("failed to load clusters authentication details. provide clusters details either by setting env KUBECONFIG_MC or KUBECONFIG")
+		}
+		initialiseKubeConfig()
+		return
 	}
 
 	yamlFile, err := ioutil.ReadFile(configFile)
@@ -39,17 +56,38 @@ func Initialise() {
 		log.Fatalf("failed to read the config file %s", err)
 	}
 
-	err = yaml.Unmarshal(yamlFile, &KubeClients)
+	err = yaml.Unmarshal(yamlFile, &ClientInfo.KubeMCClients)
 	if err != nil {
 		log.Fatalf("failed to unmarshal provided config %s", err)
 	}
-
-	PreviousKubeconfig = os.Getenv(KUBECONFIG)
 }
 
-func (c *Config) ExecCmd(args []string) {
+// loads all the existing contexts from KUBECONFIG file.
+func initialiseKubeConfig() {
+	configFile := os.Getenv(KUBECONFIG)
+	yamlFile, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		log.Fatalf("failed to read the config file %s", err)
+	}
+
+	config := &v1.Config{}
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		log.Fatalf("failed to unmarshal provided config %s", err)
+	}
+	var context ContextDetails
+	for _, d := range config.Contexts {
+		context.Name = d.Name
+		context.Cluster = d.Context.Cluster
+		ClientInfo.KubeClients = append(ClientInfo.KubeClients, context)
+	}
+}
+
+// sets the context between different clusters.
+func (c *ConfigDetails) SetKubeContext(args []string) {
 	var err error
-	for key, client := range c.Details {
+	if !c.KubeConfig {
+	for key, client := range c.KubeMCClients.Details {
 		err = os.Setenv(KUBECONFIG, client.Kubeconfig)
 		if err != nil {
 			log.Fatalf("unable to switch context for %s", key)
@@ -58,13 +96,20 @@ func (c *Config) ExecCmd(args []string) {
 		execKubectl(args)
 		fmt.Println()
 	}
-	//defer rollBacKubeConfig()
+	} else {
+		for _, context := range c.KubeClients {
+			_, err := exec.Command(KUBECTL, "config", "use-context", context.Name).CombinedOutput()
+			if err != nil {
+				log.Println(err.Error())
+			}
+			fmt.Println("CLUSTER NAME: ", context.Name)
+			execKubectl(args)
+			fmt.Println()
+		}
+	}
 }
 
-func rollBacKubeConfig() {
-	_ = os.Setenv("KUBECONFIG", PreviousKubeconfig)
-}
-
+// executes the kubectl cmd.
 func execKubectl(args []string) {
 	out, err := exec.Command(KUBECTL, args...).CombinedOutput()
 	if err != nil {
